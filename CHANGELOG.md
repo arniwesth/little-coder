@@ -2,6 +2,23 @@
 
 All notable changes to little-coder are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and little-coder's public interface (CLI, providers, tools, skills) follows semver starting at `v0.0.1` post-rename.
 
+## [v1.2.1] — 2026-05-16
+
+Docs-only release marking two milestones: **Terminal-Bench 2.0 leaderboard acceptance** and the **end of the Phase 1 benchmark baseline**. No CLI, settings, or skill-pack changes — the env-var path for remote inference (`LLAMACPP_BASE_URL` / `OLLAMA_BASE_URL` / `LMSTUDIO_BASE_URL` pointing at a non-loopback host) has worked since v1.1.0 / v1.2.0, but it was undocumented for the LAN-server case until now.
+
+### Added
+- **README "Serving from another machine on your LAN" section** under *Local model setup → Option C*. Covers all three local providers (llama.cpp `--host 0.0.0.0`, LM Studio's *Serve on local network*, `OLLAMA_HOST=0.0.0.0:11434 ollama serve`), the corresponding `*_BASE_URL` env on the client, a `curl /v1/models` reachability check, and a note on opening port 1234 / 8888 / 11434 in `ufw`. Validated against this repo's own benchmark hardware: `LLAMACPP_BASE_URL=http://<lan-ip>:8888/v1` against `llama-server --host 0.0.0.0` serves Qwen3.6-35B-A3B to a different machine over WiFi at the same per-token throughput as loopback.
+
+### Changed
+- **Benchmark table — Terminal-Bench 2.0 rows.** Replaced the *"awaiting maintainer merge"* status (HuggingFace PRs [#158](https://huggingface.co/datasets/harborframework/terminal-bench-2-leaderboard/discussions/158) and [#163](https://huggingface.co/datasets/harborframework/terminal-bench-2-leaderboard/discussions/163)) with the accepted leaderboard placements published at [tbench.ai/leaderboard/terminal-bench/2.0](https://www.tbench.ai/leaderboard/terminal-bench/2.0): **Qwen3.6-35B-A3B at 24.6 % ± 3.2 (rank 120)** and **Qwen3.5-9B at 9.2 % ± 2.4 (rank 142)**. The mean shifted slightly from the originally-submitted point estimates (23.82 % → 24.6 %, 9.21 % → 9.2 %) once the leaderboard recomputed across all five trials with a confidence interval; the underlying runs are unchanged.
+- **Roadmap reframed.** Phase 1 (build a wide benchmark baseline across short coding exercises, interactive shell tasks, and tool-using research) is now marked **complete**: Aider Polyglot ✓, Terminal-Bench-Core v0.1.1 ✓, Terminal-Bench 2.0 ✓, GAIA validation ✓. Phase 2 opens now: **iterative improvement driven by real-world coding tasks**, not by the benchmark suite. New benchmarks (ProgramBench, SWE-bench Verified, GAIA test-split) are deferred until Phase 2 produces enough scaffolding signal to be worth re-measuring — re-benchmarking before the next round of changes lands would mostly re-measure the same baseline.
+
+### Notes for upgraders
+- No CLI flag, settings, or skill-pack breaks. Existing `LMSTUDIO_BASE_URL` / `LLAMACPP_BASE_URL` / `OLLAMA_BASE_URL` users on either loopback or remote hosts keep working with no changes; the only thing that changed is that the remote-host case is now documented.
+- No `models.json` or `.pi/settings.json` shape change. Per-model profiles (context limit, thinking budget, temperature) continue to apply regardless of where the inference server lives — they're keyed by `<provider>/<model-id>`, not by host.
+
+---
+
 ## [v1.2.0] — 2026-05-10
 
 Issue-cleanup release that also ships built-in LM Studio support. Closes [#17](https://github.com/itayinbarr/little-coder/issues/17) (Windows), [#19](https://github.com/itayinbarr/little-coder/issues/19) (phantom Agent tool), [#21](https://github.com/itayinbarr/little-coder/issues/21) (skill param mismatch).
